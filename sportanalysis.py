@@ -75,12 +75,25 @@ class GnssInfo():
     LATITUDE = 3
     MAXITEM = 4
 
+class StepInfo():
+    TIMESTAMP = 0
+    TIMEZONE = 1
+    SEDENTARYCOUNT = 2
+    REVERSE = 3
+    CALORIEBMR = 4
+    CALORIESPORT = 5
+    STEPHOUR = 6
+    DISTANCEHOUR = 7
+    MAXITEM = 54
+
 dataInfo = []
 statisticsData = []
 realtimeData = []
 realtimeInfo = []
 countcircleData = []
 countcircleInfo = []
+stepData = []
+stepInfo = []
 gnssInfo = [ "", 0.0, "", 0.0 ]
 
 def rad(d):
@@ -258,6 +271,7 @@ def printRealtimeInfo():
 
         distance = computeDistanceByGnss(longitude, latitude, longitude_ew, latitude_ns)
 
+        print timestring + "\t\tcadence:\t" + hex(realtimeInfo[RealtimeData.CADENCE]) + "\t\t" + str(realtimeInfo[RealtimeData.CADENCE])
         # print timestring + "\t\tlongitude:\t" + hex(realtimeData[i][RealtimeData.LONGITUDE]) + "\t" + str(longitude) + longitude_ew\
         #     + "\t" + "latitude:\t" + hex(realtimeData[i][RealtimeData.LATITUDE]) + "\t" + str(latitude) + latitude_ns\
         #     + "\t" + str(distance)
@@ -376,6 +390,51 @@ def initCountCircleInfo():
         countcircleInfo.append(0)
         i
 
+def printStepInfo():
+    "输出计步数据"
+
+    for i in range(len(stepData)):
+        print str(i + 1) + "d计步信息:"
+        print "当地时间:\t" + hex(stepData[i][StepInfo.TIMESTAMP]) + "\t\t" + util.converUnixTimestamp(stepData[0][StepInfo.TIMESTAMP])
+
+        print "时区:\t\t" + hex(stepData[i][StepInfo.TIMEZONE]) + "\t\t\t" + str(stepData[0][StepInfo.TIMEZONE])
+        print "久坐:\t\t" + hex(stepData[i][StepInfo.SEDENTARYCOUNT]) + "\t\t\t" + str(stepData[0][StepInfo.SEDENTARYCOUNT])
+        print "静息卡路里:\t" + hex(stepData[i][StepInfo.CALORIEBMR]) + "\t\t\t" + str(stepData[0][StepInfo.CALORIEBMR])
+        print "运动卡路里:\t" + hex(stepData[i][StepInfo.CALORIESPORT]) + "\t\t\t" + str(stepData[0][StepInfo.CALORIESPORT])
+        for j in range(24):
+            h = str(j) 
+            if j < 10: h = "0" + str(j)
+            print h + ":00 步数:\t" + hex(stepData[i][StepInfo.STEPHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.STEPHOUR + j * 2])
+            print h + ":00 距离:\t" + hex(stepData[i][StepInfo.DISTANCEHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.DISTANCEHOUR + j * 2])
+
+def analysisStepV1004(buffer):
+    "计步数据V1004解析"
+    print "计步数据协议版本V1.0.04(" + hex(dataInfo[DataHead.VERSION]) + ")"
+
+    offset = 0
+    for i in range(dataInfo[DataHead.NODENUM]):
+        stepInfo[StepInfo.TIMESTAMP] = util.getUint32(buffer[offset + 0:offset + 8])
+        stepInfo[StepInfo.TIMEZONE] = util.getUint8(buffer[offset + 8:offset + 10])
+        stepInfo[StepInfo.SEDENTARYCOUNT] = util.getUint8(buffer[offset + 10:offset + 12])
+        stepInfo[StepInfo.REVERSE] = util.getUint16(buffer[offset + 12:offset + 16])
+        stepInfo[StepInfo.CALORIEBMR] = util.getUint32(buffer[offset + 16:offset + 24])
+        stepInfo[StepInfo.CALORIESPORT] = util.getUint32(buffer[offset + 24:offset + 32])
+        for j in range(24):
+            start = offset + 32 + 8 * j
+            end = offset + 36 + 8 * j
+            stepInfo[StepInfo.STEPHOUR + j * 2] = util.getUint16(buffer[start:end])
+            stepInfo[StepInfo.DISTANCEHOUR + j * 2] = util.getUint16(buffer[end:end + 4])
+        offset += dataInfo[DataHead.NODESIZE] * 2
+        i
+        info = copy.copy(stepInfo)
+        stepData.append(info)
+        print info
+
+def initStepInfo():
+    for i in range(StepInfo.MAXITEM):
+        stepInfo.append(0)
+        i
+
 def printHeadInfo():
     print "uuid:\t\t" + hex(dataInfo[DataHead.UUID])
     print "mode1:\t\t" + hex(dataInfo[DataHead.MODEL1]) + "\t" + chr(dataInfo[DataHead.MODEL1])
@@ -412,9 +471,6 @@ def process():
 
     print "运动数据文件名: ", filename
 
-    filesize = os.path.getsize(filename)
-    # print "filesize:" + str(filesize)
-
     if (os.path.exists("output.txt")): os.remove("output.txt")
 
     # 初始化列表
@@ -422,6 +478,10 @@ def process():
     initStatisticsData()
     initRealtimeInfo()
     initCountCircleInfo()
+    
+    
+    filesize = os.path.getsize(filename)
+    # print "filesize:" + str(filesize)
 
     # 打开一个文件
     file = open(filename, "r")
@@ -487,8 +547,19 @@ def process():
                 print "版本无法识别" + hex(dataInfo[DataHead.VERSION])
             if (1 == show):
                 printCountCircleInfo()
+        elif (str("F") == chr(dataInfo[DataHead.MODEL1]) and str("S") == chr(dataInfo[DataHead.MODEL2])):
+            initStepInfo()
+            show = 1
+            if (0x1004 == dataInfo[DataHead.VERSION]):
+                analysisStepV1004(buffer)
+            else:
+                show = 0
+                print "版本无法识别" + hex(dataInfo[DataHead.VERSION])
+            if (1 == show):
+                printStepInfo()
         else:
             print "类型无法识别" + hex(dataInfo[DataHead.MODEL1]) + "\t\t" + chr(dataInfo[DataHead.MODEL1])
+            printHeadInfo()
         util.printDividingLine()
 
     # 关闭打开的文件

@@ -56,3 +56,22 @@ typedef struct _StoreCircleElement
     uint32_t pauseTime;
     uint32_t unit;
 } StoreCircleElement;
+
+// size: 4
+typedef struct _StepHourInfo
+{
+    uint16_t step;
+    uint16_t distance;          // unit: m
+} StepHourInfo;
+
+// size: 112
+typedef struct _StepDetailInfo
+{
+    uint32_t timestamp;
+    int8_t timezone;            // [-11, 12], only be modified when date change
+    uint8_t sedentaryCount;     // sedentary count in one day
+    uint16_t reverse;           // reserve
+    uint32_t calorieBmr;        // unit: c, from 00:00 to this hour, or this minute, this second
+    uint32_t calorieSport;      // unit: c, consumption of a sport in this day
+    StepHourInfo info[24];
+} StepDetailInfo;
