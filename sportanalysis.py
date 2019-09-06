@@ -271,7 +271,7 @@ def printRealtimeInfo():
 
         distance = computeDistanceByGnss(longitude, latitude, longitude_ew, latitude_ns)
 
-        print timestring + "\t\tcadence:\t" + hex(realtimeInfo[RealtimeData.CADENCE]) + "\t\t" + str(realtimeInfo[RealtimeData.CADENCE])
+        # print timestring + "\t\tcadence:\t" + hex(realtimeInfo[RealtimeData.CADENCE]) + "\t\t" + str(realtimeInfo[RealtimeData.CADENCE])
         # print timestring + "\t\tlongitude:\t" + hex(realtimeData[i][RealtimeData.LONGITUDE]) + "\t" + str(longitude) + longitude_ew\
         #     + "\t" + "latitude:\t" + hex(realtimeData[i][RealtimeData.LATITUDE]) + "\t" + str(latitude) + latitude_ns\
         #     + "\t" + str(distance)
@@ -395,17 +395,18 @@ def printStepInfo():
 
     for i in range(len(stepData)):
         print str(i + 1) + "d计步信息:"
-        print "当地时间:\t" + hex(stepData[i][StepInfo.TIMESTAMP]) + "\t\t" + util.converUnixTimestamp(stepData[0][StepInfo.TIMESTAMP])
+        print "当地时间:\t" + hex(stepData[i][StepInfo.TIMESTAMP]) + "\t\t" + util.converUnixTimestamp(stepData[i][StepInfo.TIMESTAMP])
 
-        print "时区:\t\t" + hex(stepData[i][StepInfo.TIMEZONE]) + "\t\t\t" + str(stepData[0][StepInfo.TIMEZONE])
-        print "久坐:\t\t" + hex(stepData[i][StepInfo.SEDENTARYCOUNT]) + "\t\t\t" + str(stepData[0][StepInfo.SEDENTARYCOUNT])
-        print "静息卡路里:\t" + hex(stepData[i][StepInfo.CALORIEBMR]) + "\t\t\t" + str(stepData[0][StepInfo.CALORIEBMR])
-        print "运动卡路里:\t" + hex(stepData[i][StepInfo.CALORIESPORT]) + "\t\t\t" + str(stepData[0][StepInfo.CALORIESPORT])
+        print "时区:\t\t" + hex(stepData[i][StepInfo.TIMEZONE]) + "\t\t\t" + str(stepData[i][StepInfo.TIMEZONE])
+        print "久坐:\t\t" + hex(stepData[i][StepInfo.SEDENTARYCOUNT]) + "\t\t\t" + str(stepData[i][StepInfo.SEDENTARYCOUNT])
+        print "静息卡路里:\t" + hex(stepData[i][StepInfo.CALORIEBMR]) + "\t\t\t" + str(stepData[i][StepInfo.CALORIEBMR])
+        print "运动卡路里:\t" + hex(stepData[i][StepInfo.CALORIESPORT]) + "\t\t\t" + str(stepData[i][StepInfo.CALORIESPORT])
         for j in range(24):
             h = str(j) 
             if j < 10: h = "0" + str(j)
             print h + ":00 步数:\t" + hex(stepData[i][StepInfo.STEPHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.STEPHOUR + j * 2])
             print h + ":00 距离:\t" + hex(stepData[i][StepInfo.DISTANCEHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.DISTANCEHOUR + j * 2])
+        util.printDividingLine()
 
 def analysisStepV1004(buffer):
     "计步数据V1004解析"
