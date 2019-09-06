@@ -23,17 +23,19 @@ def readlog():
 
     if len(context) == 0: return
 
-    # filename = raw_input("请输入读取安卓日志文件名：")
-    filename = "2019-09-02_09-14-49.log"
+    filename = raw_input("请输入读取安卓日志文件名：")
+    # filename = "data.log"
 
     if len(filename) == 0 or 0 == os.path.exists(filename):
         filename = "data.log"
 
     print "安卓日志文件名: ", filename
 
-    if (os.path.exists("data_out.txt")): os.remove("data_out.txt")
-
-    outfilename = "datasport.txt"
+    # portion为名称和后缀分离后的列表
+    portion = os.path.splitext(filename)
+    if portion[1] ==".log":
+        # 要改的新后缀#改好的新名字
+        outfilename = portion[0] + ".txt"
 
     # 打开一个文件
     file = open(filename, "r")

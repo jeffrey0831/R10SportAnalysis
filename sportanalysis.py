@@ -340,23 +340,23 @@ def printCountCircleInfo():
     # 打开一个文件
     file = open("output.txt", "a")
     for i in range(len(countcircleData)):
-        print str(i + 1) + "d计圈信息:"
+        print "计圈" +str(i + 1) + "信息:"
         if (statisticsData[Statistics.MODE] != SportMode.SPORT_RIDE):
             print "pace:\t\t%s\t\t%d'%d\""%(hex(countcircleData[i][CountCircleInfo.PACE]), countcircleData[i][CountCircleInfo.PACE] / 60, countcircleData[i][CountCircleInfo.PACE] % 60)
         else:
             print "speed:\t\t%s\t\t%d.%dkm/h"%(hex(countcircleData[i][CountCircleInfo.PACE]), countcircleData[i][CountCircleInfo.PACE] / 1000, (countcircleData[i][CountCircleInfo.PACE] % 1000) / 100)
-        print "elapsetime:\t" + hex(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "\t\t" + str(countcircleData[i][CountCircleInfo.ELAPSETIME])
-        print "pause:\t\t" + hex(countcircleData[i][CountCircleInfo.PAUSETIME]) + "\t\t" + str(countcircleData[i][CountCircleInfo.PAUSETIME])
-        print "unit:\t\t" + hex(countcircleData[i][CountCircleInfo.UNIT]) + "\t\t" + str(countcircleData[i][CountCircleInfo.UNIT])
+        print "elapsetime:\t" + hex(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "\t\t" + str(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "秒"
+        print "pause:\t\t" + hex(countcircleData[i][CountCircleInfo.PAUSETIME]) + "\t\t" + str(countcircleData[i][CountCircleInfo.PAUSETIME]) + "秒"
+        print "unit:\t\t" + hex(countcircleData[i][CountCircleInfo.UNIT]) + "\t\t" + str(countcircleData[i][CountCircleInfo.UNIT]) + "米"
 
         file.write("第%d个%d米计圈信息:\n"%(i + 1, countcircleData[i][CountCircleInfo.UNIT]))
         if (statisticsData[Statistics.MODE] != SportMode.SPORT_RIDE):
             file.write("pace:\t\t%s\t\t%d'%d\""%(hex(countcircleData[i][CountCircleInfo.PACE]), countcircleData[i][CountCircleInfo.PACE] / 60, countcircleData[i][CountCircleInfo.PACE] % 60) + "\n")
         else:
             file.write("speed:\t\t%s\t\t%d.%dkm/h"%(hex(countcircleData[i][CountCircleInfo.PACE]), countcircleData[i][CountCircleInfo.PACE] / 1000, (countcircleData[i][CountCircleInfo.PACE] % 1000) / 100) + "\n")
-        file.write("elapsetime:\t" + hex(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "\t\t" + str(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "\n")
-        file.write("pause:\t\t" + hex(countcircleData[i][CountCircleInfo.PAUSETIME]) + "\t\t\t" + str(countcircleData[i][CountCircleInfo.PAUSETIME]) + "\n")
-        file.write("unit:\t\t" + hex(countcircleData[i][CountCircleInfo.UNIT]) + "\t\t" + str(countcircleData[i][CountCircleInfo.UNIT]) + "\n")
+        file.write("elapsetime:\t" + hex(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "\t\t" + str(countcircleData[i][CountCircleInfo.ELAPSETIME]) + "秒\n")
+        file.write("pause:\t\t" + hex(countcircleData[i][CountCircleInfo.PAUSETIME]) + "\t\t\t" + str(countcircleData[i][CountCircleInfo.PAUSETIME]) + "秒\n")
+        file.write("unit:\t\t" + hex(countcircleData[i][CountCircleInfo.UNIT]) + "\t\t" + str(countcircleData[i][CountCircleInfo.UNIT]) + "米\n")
         file.write("*" * 40 + "\n")
     file.flush()
     file.close()
@@ -376,14 +376,6 @@ def analysisCountCircleV1001(buffer):
         info = copy.copy(countcircleInfo)
         countcircleData.append(info)
         # print countcircleInfo
-
-    if (statisticsData[Statistics.MODE] != SportMode.SPORT_RIDE):
-        print "pace:\t\t%s\t\t%d'%d\""%(hex(countcircleData[0][CountCircleInfo.PACE]), countcircleData[0][CountCircleInfo.PACE] / 60, countcircleData[0][CountCircleInfo.PACE] % 60)
-    else:
-        print "speed:\t\t%s\t\t%d.%dkm/h"%(hex(countcircleData[0][CountCircleInfo.PACE]), countcircleData[0][CountCircleInfo.PACE] / 1000, (countcircleData[0][CountCircleInfo.PACE] % 1000) / 100)
-    print "elapsetime:\t" + hex(countcircleData[0][CountCircleInfo.ELAPSETIME]) + "\t\t" + str(countcircleData[0][CountCircleInfo.ELAPSETIME])
-    print "pause:\t\t" + hex(countcircleData[0][CountCircleInfo.PAUSETIME]) + "\t\t" + str(countcircleData[0][CountCircleInfo.PAUSETIME])
-    print "unit:\t\t" + hex(countcircleData[0][CountCircleInfo.UNIT]) + "\t\t" + str(countcircleData[0][CountCircleInfo.UNIT])
 
 def initCountCircleInfo():
     for i in range(CountCircleInfo.MAXITEM):
@@ -464,10 +456,10 @@ def initHeadInfo():
         i
 
 def process():
-    # filename = raw_input("请输入运动数据文件名：")
-    filename = "data.txt"
+    filename = raw_input("请输入运动数据文件名：")
+    # filename = "data.txt"
 
-    if len(filename) == 0 or 0 != os.path.exists(filename):
+    if len(filename) == 0 or 0 == os.path.exists(filename):
         filename = "data.txt"
 
     print "运动数据文件名: ", filename
