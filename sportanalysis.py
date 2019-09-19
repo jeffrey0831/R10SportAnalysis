@@ -151,6 +151,14 @@ def printStatisticsInfo():
     hrCount = 0
     for i in range(5):
         hrCount += statisticsData[Statistics.DISTRIBUTED1 + i]
+    
+    h = statisticsData[Statistics.ACCOMPLISHTIME] / 3600
+    m = (statisticsData[Statistics.ACCOMPLISHTIME] - h * 3600) / 60
+    s = statisticsData[Statistics.ACCOMPLISHTIME] % 60
+    if (h > 0):
+        accomplishtime = str(h) + "小时" + str(m) + "分" + str(s) + "秒"
+    else:
+        accomplishtime = str(m) + "分" + str(s) + "秒"
 
     if (statisticsData[Statistics.MODE] < 4):
         print "运动类型:\t" + hex(statisticsData[Statistics.MODE]) + "\t\t" + modeName[statisticsData[Statistics.MODE]]
@@ -162,7 +170,10 @@ def printStatisticsInfo():
     print "时区:\t\t" + str(statisticsData[Statistics.TIMEZONE])
 
     for i in range(5):
-        print "心率区间%d:\t%d\t\t%d%s"%(i + 1, statisticsData[Statistics.DISTRIBUTED1 + i], statisticsData[Statistics.DISTRIBUTED1 + i] * 100 / hrCount, "%")
+        if 0 == hrCount:
+            print "心率区间%d:\t%d\t\t%d%s"%(i + 1, statisticsData[Statistics.DISTRIBUTED1 + i], 0, "%")
+        else:
+            print "心率区间%d:\t%d\t\t%d%s"%(i + 1, statisticsData[Statistics.DISTRIBUTED1 + i], statisticsData[Statistics.DISTRIBUTED1 + i] * 100 / hrCount, "%")
 
     print "最大步频:\t" + str(statisticsData[Statistics.MAXCADENCE]) + "spm"
     print "上升大气压:\t" + str(statisticsData[Statistics.RISEATMOSPRESS]) + "帕"
@@ -176,7 +187,7 @@ def printStatisticsInfo():
     else:
         print "最佳速度:\t%d\t\t%d.%dkm/h"%(statisticsData[Statistics.BESTPACE], statisticsData[Statistics.BESTPACE] / 1000, (statisticsData[Statistics.BESTPACE] % 1000) / 100)
     print "起始时间戳:\t" + str(statisticsData[Statistics.TIMESTAMP]) + "\t" + util.converUnixTimestamp(statisticsData[Statistics.TIMESTAMP])
-    print "完成时间:\t" + str(statisticsData[Statistics.ACCOMPLISHTIME]) + "秒\t\t" + util.converUnixTimestamp(statisticsData[Statistics.TIMESTAMP] + statisticsData[Statistics.ACCOMPLISHTIME])
+    print "完成时间:\t" + str(accomplishtime) + "\t\t" + util.converUnixTimestamp(statisticsData[Statistics.TIMESTAMP] + statisticsData[Statistics.ACCOMPLISHTIME])
     print "暂停时间:\t" + str(statisticsData[Statistics.PAUSETIME]) + "秒"
     print "距离:\t\t" + str(statisticsData[Statistics.DISTANCE]) + "米"
     print "校准距离:\t" + str(statisticsData[Statistics.CALIDISTANCE]) + "米"
@@ -193,7 +204,10 @@ def printStatisticsInfo():
     file.write("时区:\t\t" + str(statisticsData[Statistics.TIMEZONE]) + "\n")
 
     for i in range(5):
-       file.write("心率区间%d:\t%d\t\t\t%d%s"%(i + 1, statisticsData[Statistics.DISTRIBUTED1 + i], statisticsData[Statistics.DISTRIBUTED1 + i] * 100 / hrCount, "%") + "\n")
+        if 0 == hrCount:
+            file.write("心率区间%d:\t%d\t\t\t%d%s"%(i + 1, statisticsData[Statistics.DISTRIBUTED1 + i], 0, "%") + "\n")
+        else:
+            file.write("心率区间%d:\t%d\t\t\t%d%s"%(i + 1, statisticsData[Statistics.DISTRIBUTED1 + i], statisticsData[Statistics.DISTRIBUTED1 + i] * 100 / hrCount, "%") + "\n")
 
     file.write("最大步频:\t" + str(statisticsData[Statistics.MAXCADENCE]) + " spm" + "\n")
     file.write("上升大气压:\t" + str(statisticsData[Statistics.RISEATMOSPRESS]) + " pa" + "\n")
@@ -207,7 +221,7 @@ def printStatisticsInfo():
     else:
        file.write("最佳速度:\t%d\t\t%d.%dkm/h"%(statisticsData[Statistics.BESTPACE], statisticsData[Statistics.BESTPACE] / 1000, (statisticsData[Statistics.BESTPACE] % 1000) / 100) + "\n")
     file.write("起始时间戳:\t" + str(statisticsData[Statistics.TIMESTAMP]) + "\t" + util.converUnixTimestamp(statisticsData[Statistics.TIMESTAMP]) + "\n")
-    file.write("完成时间:\t" + str(statisticsData[Statistics.ACCOMPLISHTIME]) + "秒\t\t" + util.converUnixTimestamp(statisticsData[Statistics.TIMESTAMP] + statisticsData[Statistics.ACCOMPLISHTIME]) + "\n")
+    file.write("完成时间:\t" + str(accomplishtime) + "\t\t" + util.converUnixTimestamp(statisticsData[Statistics.TIMESTAMP] + statisticsData[Statistics.ACCOMPLISHTIME]) + "\n")
     file.write("暂停时间:\t" + str(statisticsData[Statistics.PAUSETIME]) + "秒" + "\n")
     file.write("距离:\t\t" + str(statisticsData[Statistics.DISTANCE]) + " m" + "\n")
     file.write("校准距离:\t" + str(statisticsData[Statistics.CALIDISTANCE]) + " m" + "\n")
@@ -216,9 +230,15 @@ def printStatisticsInfo():
     file.flush()
     file.close()
 
-def analysisStatisticsV1003(buffer):
+def analysisStatisticsV1003(buffer, buffersize):
     "运动统计数据V1003解析"
     print "运动统计数据协议版本V1.0.03(" + hex(dataInfo[DataHead.VERSION]) + ")"
+
+    leftsize = buffersize
+    if (leftsize < dataInfo[DataHead.NODESIZE] * 2):
+        print "运动统计数据不完整"
+        print buffer
+        return
 
     statisticsData[Statistics.MODE] = util.getUint8(buffer[0:2])
     statisticsData[Statistics.AVERAGEHR] = util.getUint8(buffer[2:4])
@@ -287,17 +307,27 @@ def printRealtimeInfo():
             file.write("\t\t\t\t")
         else:
             file.write("\t\t")
+        file.write("pace:\t" + str(realtimeData[i][RealtimeData.PACE]) + "\t\t")
         file.write("distance:\t" + str(distance))
         file.write("\n")
     file.flush()
     file.close()
 
-def analysisRealtimeV1004(buffer):
+def analysisRealtimeV1004(buffer, buffersize):
     "运动实时数据V1004解析"
     print "运动实时数据协议版本V1.0.04(" + hex(dataInfo[DataHead.VERSION]) + ")"
 
+    i = 0
     offset = 0
+    leftsize = buffersize
     for i in range(dataInfo[DataHead.NODENUM]):
+        if (leftsize < dataInfo[DataHead.NODESIZE] * 2):
+            print "运动实时数据不完整"
+            print buffer[offset:]
+            break
+        else:
+            leftsize -= dataInfo[DataHead.NODESIZE] * 2
+
         realtimeInfo[RealtimeData.PAUSE] = util.getUint8(buffer[offset + 0:offset + 2])
         realtimeInfo[RealtimeData.HR] = util.getUint8(buffer[offset + 2:offset + 4])
         realtimeInfo[RealtimeData.LONGITUDE_EW] = util.getUint8(buffer[offset + 4:offset + 6])
@@ -309,7 +339,6 @@ def analysisRealtimeV1004(buffer):
         realtimeInfo[RealtimeData.LONGITUDE] = util.getUint32(buffer[offset + 32:offset + 40])
         realtimeInfo[RealtimeData.ATMOSPRESS] = util.getUint32(buffer[offset + 40:offset + 48])
         offset += dataInfo[DataHead.NODESIZE] * 2
-        i
         info = copy.copy(realtimeInfo)
         realtimeData.append(info)
         # print realtimeInfo
@@ -337,6 +366,7 @@ def initRealtimeInfo():
 def printCountCircleInfo():
     "输出运动计圈数据"
     
+    i = 0
     # 打开一个文件
     file = open("output.txt", "a")
     for i in range(len(countcircleData)):
@@ -361,18 +391,26 @@ def printCountCircleInfo():
     file.flush()
     file.close()
 
-def analysisCountCircleV1001(buffer):
+def analysisCountCircleV1001(buffer, buffersize):
     "运动计圈数据V1001解析"
     print "运动计圈数据协议版本V1.0.01(" + hex(dataInfo[DataHead.VERSION]) + ")"
 
+    i = 0
+    leftsize = buffersize
     offset = 0
     for i in range(dataInfo[DataHead.NODENUM]):
+        if (leftsize < dataInfo[DataHead.NODESIZE] * 2):
+            print "运动计圈数据不完整"
+            print buffer[offset:-1]
+            break
+        else:
+            leftsize -= dataInfo[DataHead.NODESIZE] * 2
+
         countcircleInfo[CountCircleInfo.PACE] = util.getUint32(buffer[offset + 0:offset + 8])
         countcircleInfo[CountCircleInfo.ELAPSETIME] = util.getUint32(buffer[offset + 8:offset + 16])
         countcircleInfo[CountCircleInfo.PAUSETIME] = util.getUint32(buffer[offset + 16:offset + 24])
         countcircleInfo[CountCircleInfo.UNIT] = util.getUint32(buffer[offset + 24:offset + 32])
         offset += dataInfo[DataHead.NODESIZE] * 2
-        i
         info = copy.copy(countcircleInfo)
         countcircleData.append(info)
         # print countcircleInfo
@@ -394,18 +432,28 @@ def printStepInfo():
         print "静息卡路里:\t" + hex(stepData[i][StepInfo.CALORIEBMR]) + "\t\t\t" + str(stepData[i][StepInfo.CALORIEBMR])
         print "运动卡路里:\t" + hex(stepData[i][StepInfo.CALORIESPORT]) + "\t\t\t" + str(stepData[i][StepInfo.CALORIESPORT])
         for j in range(24):
-            h = str(j) 
-            if j < 10: h = "0" + str(j)
-            print h + ":00 步数:\t" + hex(stepData[i][StepInfo.STEPHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.STEPHOUR + j * 2])
-            print h + ":00 距离:\t" + hex(stepData[i][StepInfo.DISTANCEHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.DISTANCEHOUR + j * 2])
+            if j < 10:
+                h = "0" + str(j)
+            else:
+                h = str(j) 
+            print h + ":00 步数:\t" + hex(stepData[i][StepInfo.STEPHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.STEPHOUR + j * 2]) + "\t距离:\t" + hex(stepData[i][StepInfo.DISTANCEHOUR + j * 2]) + "\t\t\t" + str(stepData[i][StepInfo.DISTANCEHOUR + j * 2])
         util.printDividingLine()
 
-def analysisStepV1004(buffer):
+def analysisStepV1004(buffer, buffersize):
     "计步数据V1004解析"
     print "计步数据协议版本V1.0.04(" + hex(dataInfo[DataHead.VERSION]) + ")"
 
+    i = 0
     offset = 0
+    leftsize = buffersize
     for i in range(dataInfo[DataHead.NODENUM]):
+        if (leftsize < dataInfo[DataHead.NODESIZE] * dataInfo[DataHead.NODENUM] * 2):
+            print "运动计步数据不完整"
+            print buffer[offset:]
+            break
+        else:
+            leftsize -= dataInfo[DataHead.NODESIZE] * dataInfo[DataHead.NODENUM] * 2
+
         stepInfo[StepInfo.TIMESTAMP] = util.getUint32(buffer[offset + 0:offset + 8])
         stepInfo[StepInfo.TIMEZONE] = util.getUint8(buffer[offset + 8:offset + 10])
         stepInfo[StepInfo.SEDENTARYCOUNT] = util.getUint8(buffer[offset + 10:offset + 12])
@@ -502,6 +550,7 @@ def process():
         # 解析数据头信息
         analysisHeadInfo(buffer)
         # printHeadInfo()
+        if (0xFFFFFFFF == dataInfo[DataHead.UUID]): break
         
         # 读取数据具体内容
         readsize = dataInfo[DataHead.NODESIZE] * dataInfo[DataHead.NODENUM] * 2
@@ -515,7 +564,7 @@ def process():
             # 统计信息
             show = 1
             if (0x1003 == dataInfo[DataHead.VERSION]):
-                analysisStatisticsV1003(buffer)
+                analysisStatisticsV1003(buffer, readsize)
             else:
                 show = 0
                 print "版本无法识别" + hex(dataInfo[DataHead.VERSION])
@@ -525,7 +574,7 @@ def process():
             # 实时数据
             show = 1
             if (0x1004 == dataInfo[DataHead.VERSION]):
-                analysisRealtimeV1004(buffer)
+                analysisRealtimeV1004(buffer, readsize)
             else:
                 show = 0
                 print "版本无法识别" + hex(dataInfo[DataHead.VERSION])
@@ -534,7 +583,7 @@ def process():
         elif (str("K") == chr(dataInfo[DataHead.MODEL1])):
             show = 1
             if (0x1001 == dataInfo[DataHead.VERSION]):
-                analysisCountCircleV1001(buffer)
+                analysisCountCircleV1001(buffer, readsize)
             else:
                 show = 0
                 print "版本无法识别" + hex(dataInfo[DataHead.VERSION])
@@ -544,13 +593,14 @@ def process():
             initStepInfo()
             show = 1
             if (0x1004 == dataInfo[DataHead.VERSION]):
-                analysisStepV1004(buffer)
+                analysisStepV1004(buffer, readsize)
             else:
                 show = 0
                 print "版本无法识别" + hex(dataInfo[DataHead.VERSION])
             if (1 == show):
                 printStepInfo()
         else:
+            util.printDividingLine()
             print "类型无法识别" + hex(dataInfo[DataHead.MODEL1]) + "\t\t" + chr(dataInfo[DataHead.MODEL1])
             printHeadInfo()
         util.printDividingLine()
