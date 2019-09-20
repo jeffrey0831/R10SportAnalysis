@@ -97,7 +97,7 @@ def printInfo():
             file.write("\t\t")
         file.write("pace:\t" + str(realtimeData[i][RealtimeData.PACE]) + "\t\t")
         file.write("altitude:\t" + str(realtimeData[i][RealtimeData.DELTAALTITUDE]) + "\t\t")
-        file.write("distance:\t" + str(realtimeData[i][RealtimeData.DELTADISTANCE]) + "\t\t")
+        file.write("distance:\t" + str(realtimeData[i][RealtimeData.DELTADISTANCE]) + " cm" + "\t\t")
         file.write("offset:\t" + str(distance))
         file.write("\n")
     file.flush()
