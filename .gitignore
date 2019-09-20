@@ -2,4 +2,5 @@
 *.txt
 *.pyc
 *.log
+*.raw
 *.code-workspace
