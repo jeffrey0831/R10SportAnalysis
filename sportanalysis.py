@@ -109,8 +109,10 @@ def process():
                 statistics.v1004.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
                 statistics.v1004.printInfo()
             else:
-                rename = 0
                 print "统计数据版本无法识别" + hex(dataInfo[DataHead.VERSION])
+                statistics.v1004.initInfo()
+                statistics.v1004.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
+                statistics.v1004.printInfo()
         elif (str("R") == chr(dataInfo[DataHead.MODEL1])):
             # 实时数据
             info.dataindex = dataInfo[DataHead.MODEL2] - 1
@@ -124,6 +126,9 @@ def process():
                 realtime.v1005.printInfo()
             else:
                 print "实时数据版本无法识别" + hex(dataInfo[DataHead.VERSION])
+                realtime.v1005.initInfo()
+                realtime.v1005.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
+                realtime.v1005.printInfo()
         elif (str("K") == chr(dataInfo[DataHead.MODEL1])):
             if (0x1001 == dataInfo[DataHead.VERSION]):
                 countcircle.v1001.initInfo()
@@ -135,6 +140,9 @@ def process():
                 countcircle.v1002.printInfo()
             else:
                 print "计圈数据版本无法识别" + hex(dataInfo[DataHead.VERSION])
+                countcircle.v1002.initInfo()
+                countcircle.v1002.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
+                countcircle.v1002.printInfo()
         elif (str("F") == chr(dataInfo[DataHead.MODEL1]) and str("S") == chr(dataInfo[DataHead.MODEL2])):
             if (0x1004 == dataInfo[DataHead.VERSION]):
                 step.v1004.initInfo()
@@ -142,6 +150,9 @@ def process():
                 step.v1004.printInfo()
             else:
                 print "计步数据版本无法识别" + hex(dataInfo[DataHead.VERSION])
+                step.v1004.initInfo()
+                step.v1004.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
+                step.v1004.printInfo()
         else:
             util.printDividingLine()
             print "数据类型无法识别" + hex(dataInfo[DataHead.MODEL1]) + "\t\t" + chr(dataInfo[DataHead.MODEL1])

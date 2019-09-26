@@ -31,7 +31,7 @@ def analysisInfo(buffer, buffersize, nodenum, nodesize):
     for i in range(nodenum):
         if (leftsize < nodesize * 2):
             print "运动计圈数据不完整"
-            print buffer[offset:-1]
+            print buffer[offset:]
             break
         else:
             leftsize -= nodesize * 2

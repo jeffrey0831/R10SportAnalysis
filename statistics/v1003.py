@@ -42,8 +42,8 @@ def initInfo():
         i
 
 def analysisInfo(buffer, buffersize, nodenum, nodesize):
-    "运动统计数据V1004解析"
-    print "运动统计数据协议版本V1.0.04"
+    "运动统计数据V1003解析"
+    print "运动统计数据协议版本V1.0.03"
 
     if (buffersize < nodesize * 2):
         print "运动统计数据不完整"
