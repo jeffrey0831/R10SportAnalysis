@@ -9,6 +9,7 @@ import countcircle.v1001
 import countcircle.v1002
 import statistics.v1003
 import statistics.v1004
+import statistics.v1005
 import realtime.v1004
 import realtime.v1005
 import step.v1004
@@ -108,6 +109,10 @@ def process():
                 statistics.v1004.initInfo()
                 statistics.v1004.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
                 statistics.v1004.printInfo()
+            elif (0x1005 == dataInfo[DataHead.VERSION]):
+                statistics.v1005.initInfo()
+                statistics.v1005.analysisInfo(buffer, readsize, dataInfo[DataHead.NODENUM], dataInfo[DataHead.NODESIZE])
+                statistics.v1005.printInfo()
             else:
                 print "统计数据版本无法识别" + hex(dataInfo[DataHead.VERSION])
                 statistics.v1004.initInfo()
